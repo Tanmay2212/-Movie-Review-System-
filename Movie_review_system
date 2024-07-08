@@ -1,0 +1,67 @@
+# Project
+#I used PostgreSQL
+import psycopg2
+
+# Database connection settings
+host = 'localhost'
+database = 'database name'
+user = 'user name'
+password = 'password'
+
+# Connect to the database
+conn = psycopg2.connect(
+    host=host,
+    database=database,
+    user=user,
+    password=password
+)
+
+# Create a cursor object
+cur = conn.cursor()
+
+def add_rating(movie_title, rating):
+    cur.execute("SELECT MAX(id) FROM ratings")
+    max_id = cur.fetchone()[0]
+    if max_id is None:
+        max_id = 0
+    new_id = max_id + 1
+    cur.execute("INSERT INTO ratings (id, movie_title, rating) VALUES (%s, %s, %s)", (new_id, movie_title, rating))
+    conn.commit()
+
+def view_ratings():
+    cur.execute("SELECT * FROM ratings")
+    ratings = cur.fetchall()
+    for rating in ratings:
+        print(rating)
+        print()  # add an empty line
+
+while True:
+    print("1. Add movie rating - Enter a new movie title and rating (1-10) to add to the database.")
+    print("2. View ratings - Display all movie ratings currently in the database.")
+    print("3. Quit - Exit the program.")
+    print("4. Help - Display detailed instructions on how to use the program.")
+    choice = input("Choose an option: ")
+
+    if choice == "1":
+        movie_title = input("Enter the movie title: ")
+        rating = int(input("Enter the rating (1-10): "))
+        add_rating(movie_title, rating)
+    elif choice == "2":
+        view_ratings()
+    elif choice == "3":
+        break;
+
+    elif choice == "4":
+        print("Welcome to the Movie Rating System!")
+        print("This program allows you to add, view, and plot movie ratings.")
+        print("To add a movie rating, enter the movie title and rating (1-10).")
+        print("To view ratings, select option 2 to display all ratings in the database.")
+        print("To plot ratings, select option 3 to generate a plot showing the distribution of ratings.")
+        print("To quit the program, select option 4.")
+        input("Press Enter to continue...")
+    else:
+        print("Invalid option. Try again!")
+
+
+cur.close()
+conn.close()
